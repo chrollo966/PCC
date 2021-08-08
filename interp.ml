@@ -21,11 +21,37 @@ let update var vl env v = if v = var then vl else env v
 let rec trans_stmt ast env =
   match ast with
   | Stmts (s1, s2) ->
-      let env' = trans_stmt sq env in
-      trans_stms s2 env
+      let env' = trans_stmt s1 env in
+      trans_stmt s2 env'
   | Assign (var, e) ->
       let vl = trans_exp e env in
       update var vl env
   | Print e ->
       let vl = trans_exp e env in
-      (print_int vl; print_string "\n"; env)
+      print_int vl;
+      print_string "\n";
+      env
+
+and trans_exp ast env =
+  match ast with
+  | ID v -> env v
+  | Num n -> n
+  | Plus (e1, e2) ->
+      let vl1 = trans_exp e1 env in
+      let vl2 = trans_exp e2 env in
+      vl1 + vl2
+  | Minus (e1, e2) ->
+      let vl1 = trans_exp e1 env in
+      let vl2 = trans_exp e2 env in
+      vl1 - vl2
+  | Times (e1, e2) ->
+      let vl1 = trans_exp e1 env in
+      let vl2 = trans_exp e2 env in
+      vl1 * vl2
+  | Div (e1, e2) ->
+      let vl1 = trans_exp e1 env in
+      let vl2 = trans_exp e2 env in
+      vl1 / vl2
+
+let prog = Stmts (Assign("x", Plus (Num 1, Times (Num 2, Num 3))), Stmts (Assign ("y", Div (ID "x", Num 4)), Print (ID "y")))
+let interp ast = trans_stmt ast e0
